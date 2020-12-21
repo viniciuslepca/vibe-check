@@ -1,0 +1,80 @@
+
+
+-- depending on attibutes: same/similar, neg/pos, song/artist/year/decade, name of item
+-- we run different sql procedures to get the songs we need
+
+-- this will be the same for all songs used in playlists
+
+
+SELECT song_name, artist_name, release_year
+FROM Song, Song_by, Artist
+
+
+
+-- Same
+
+-- for artsit
+
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Same_Artist_Playlist (IN name VARCHAR(30))
+BEGIN
+	IF EXISTS (SELECT * FROM Artist WHERE artist_name = name) THEN
+		SELECT Song.song_name, Artist.artist_name, Song.release_year
+		FROM Song, Song_By, Artist
+		WHERE Song.sid = Song_By.sid AND
+			Song_By.arid = Artist.alid AND
+     		        Artist.artist_name = name;
+	ELSE
+		SELECT ‘ERROR: Invalid artist name’;
+	END IF;
+END //
+
+DELIMITER;
+
+-- NO SONG OPTION HERE, it would just be a playlist of same song
+
+-- Year
+
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Same_Year_Playlist (IN year VARCHAR(30))
+BEGIN
+	IF EXISTS (SELECT * FROM Songs WHERE release_year = year) THEN
+		SELECT Song.song_name, Artist.artist_name, Song.release_year
+		FROM Song, Song_By, Artist
+		WHERE Song.sid = Song_By.sid AND
+			Song_By.arid = Artist.alid AND
+     		        Song.release_year = year;
+	ELSE
+		SELECT ‘ERROR: Invalid song year’;
+	END IF;
+END //
+
+DELIMITER;
+
+-- Decade
+-- In Python, take decade name and output beginning of decade and end 
+-- for the sql comparison
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Same_Decade_Playlist (IN beg Integer, en Integer)
+BEGIN
+	IF EXISTS (SELECT * FROM Songs WHERE release_year <= en AND release_year >= beg) 
+            THEN
+		SELECT Song.song_name, Artist.artist_name, Song.release_year
+		FROM Song, Song_By, Artist
+		WHERE Song.sid = Song_By.sid AND
+			Song_By.arid = Artist.alid AND
+     		        release_year <= en AND 
+                        release_year >= beg;
+	ELSE
+		SELECT ‘ERROR: Invalid song decade’;
+	END IF;
+END //
+
+DELIMITER;
+
+
+-- Similar
+
