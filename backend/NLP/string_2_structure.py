@@ -3,12 +3,43 @@ exc = ["like", "similar", "resembling"]
 inc = ["by", "from"]
 neg = ["not"]
 
-songs = ["Humble", "Hello", "Watermelon Sugar"]
-artists = ["Kendrick Lamar", "Adele", "Harry Styles"]
-years = ["2017", "2015", "2019"]
-decs = ["1990s", "2000s", "2010s"]
-genres = ["Rap", "Vocal", "Pop"]
 
+
+# getting the info we need from db 
+select_artists = "SELECT artist_name FROM Artist"
+select_songs = "SELECT song_name FROM Song"
+select_years = "SELECT release_year FROM Song"
+select_genres = "SELECT genre_name FROM Artist_genre"
+
+artists = execute_read_query(connection, select_artists)
+songs = execute_read_query(connection, select_songs)
+years = execute_read_query(connection, select_years)
+genres = execute_read_query(connection, select_genres)
+
+
+# get decades from year data
+for i in years:
+    if len(i) == 4 :
+        dec = i[2:3] + "s"
+        decades.append(dec)
+
+# remove duplicates
+decades = set(decades)
+
+
+# define function to execute SQL queries easily
+def execute_read_query(connection, query):
+    cursor = connection.cursor()
+    result = None
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return result
+    except Error as e:
+        print(f"The error '{e}' occurred")
+
+
+# assume this in input clause for now
 inp = "like watermelon sugar"
 
 # main function that takes in the user input and returns sql query for coorect info
@@ -61,7 +92,7 @@ def find_obj(end):
         if i in years:
             return years, i
         if i in decs:
-            return decs, i
+            return decades, i
 
     # if not we need to check groups of words
     if end in artists:
@@ -69,7 +100,21 @@ def find_obj(end):
     if end in songs:
         return songs, end
 
+    # should check if we should put this first perhaps?
+    if end in genres:
+        return genres, end
+
     return 0
+
+def make_query(qual, neg, type, obj) :
+    if (type == "songs"):
+        
+    else if (type == "artists")
+
+
+
+    return quer, n
+
 
 
 
