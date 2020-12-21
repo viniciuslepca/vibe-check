@@ -1,6 +1,7 @@
 # Others
 /.idea
 /data
+/data_unused
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
