@@ -168,8 +168,65 @@ def make_query(qual, neg, type, obj) :
     # for queries asking for similar
     else if (qual == "sim"):
         if (type == "songs"):
+		ask = ("SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By sb1, Song_By sb2, Artist
+		WHERE s1.sid = sb1.sid AND
+			sb1.aid = sb2.aid AND
+     		        s2.sid = sb2.sid AND
+			s1.song_name = %s AND
+			sb2.aid = Artist.aid;
+		UNION
+
+                -- sim year
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By, Artist
+		WHERE s2.release_year >= s1.release_year - 2 AND
+			s2.release_year <= s1.release_year + 2 AND
+			Song_By.aid = Artist.aid AND
+			s1.song_name = %s AND
+			Song_By.sid = s2.sid;
+		UNION
+
+                -- same genre
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By sb1, Song_By sb2, Artist a1, Artist a2, Artist_Genre ag1, Artist_Genre, ag2
+		WHERE s1.sid = sb1.sid AND
+			s2.sid = sb2.sid AND
+			sb1.aid = a1.aid AND
+			sb2.aid = a2.aid AND
+			a1.aid = ag1.aid AND
+			a2.aid = ag2.aid AND
+			s1.song_name = %s AND
+			ag1.genre_name = ag2.genre_name;", (obj, obj, obj))
 
 	else if (type == "artists"):
+
+                ask = ("SELECT Song.song_name, Artist.artist_name, Song.release_year
+		FROM Song, Song_By, Artist
+		WHERE Song.sid = Song_By.sid AND
+			Artist.artist_name = %s AND
+			Song_By.aid = Artist.aid;
+		UNION
+
+                -- sim year
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By, Artist
+		WHERE s1.sid = Song_By.sid AND
+			Song_By.aid = Artist.aid AND
+			Artist.artist_name = %s AND
+			s2.release_year >= (SELECT MIN(release_year) FROM s1) AND
+			s2.release_year <= (SELECT MAX(release_year) FROM s1);
+		UNION
+
+		-- same genre
+		SELECT Song.song_name, A2.artist_name, Song.release_year
+		FROM Song, Song_By, Artist a1, Artist a2, Artist_Genre ag1, Artist_Genre ag2
+		WHERE a1.aid = ag1.aid AND
+			a1.artist_name = %s AND
+			Song.sid = Song_By.sid AND
+			Song_By.aid = a2.aid AND
+			a2.aid = ag2.aid AND
+			a2.genre_name = a1.genre_name", (obj, obj, obj))
 
 	else if (type == "years"):
             ask = ("SELECT s2.song_name, Artist.artist_name, s2.release_year
@@ -206,11 +263,11 @@ def make_query(qual, neg, type, obj) :
 
 
 
-
-
 # function for query aggregation
 # based on a list of quers and their neg/pos boolean, we union/intersect the queries to produce our
 # final query over multiple clauses
+# def aggregate(quer[], n[]) :
+    
 
 
 
