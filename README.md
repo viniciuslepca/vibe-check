@@ -14,4 +14,6 @@ with a similar "vibe".
 ## Data Collection Stages
 1. Downloaded dataset from [millionsongdataset.com](millionsongdataset.com) (~300MB)
 2. Ran our [SQL Table Generator](sql/create_tables.sql)
-3. Ran the [data collection script](data-collection/data_collection.py)
+3. Ran the [data collection script](data-collection/data_collection.py) (1 million songs, used this for most metadata about them)
+4. Downloaded dataset from [musicbrainz](https://musicbrainz.org/doc/MusicBrainz_Database/Download) (~11GB)
+5. 

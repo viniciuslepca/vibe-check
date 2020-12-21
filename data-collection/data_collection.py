@@ -32,19 +32,16 @@ def main():
             song_id = song_metadata['song_id'].decode('utf-8')
             artist_name = song_metadata['artist_name'].decode('utf-8')
             artist_id = song_metadata['artist_id'].decode('utf-8')
-            artist_location = song_metadata['artist_location'].decode('utf-8')
-            genre = song_metadata['genre'].decode('utf-8')
+            artist_mbid = song_metadata['artist_mbid'].decode('utf-8')
             release_name = song_metadata['release'].decode('utf-8')
             release_id = int(song_metadata['release_7digitalid'])
 
             duration = zero_to_none(float(song_analysis['duration']))
-            end_of_fade_in = song_analysis['end_of_fade_in']
-            start_of_fade_out = song_analysis['start_of_fade_out']
-            key = song_analysis['key']
-            loudness = song_analysis['loudness']
-            mode = song_analysis['mode']
-            tempo = song_analysis['tempo']
-            time_signature = song_analysis['time_signature']
+            key = int(song_analysis['key'])
+            loudness = float(song_analysis['loudness'])
+            mode = int(song_analysis['mode'])
+            tempo = float(song_analysis['tempo'])
+            time_signature = int(song_analysis['time_signature'])
 
             year = zero_to_none(int(song_musicbrainz['year']))
 
@@ -52,11 +49,12 @@ def main():
             cursor.execute("SELECT * FROM song WHERE SID = %s;", (song_id,))
             if cursor.fetchone() is not None:
                 continue
-            cursor.execute("INSERT INTO song VALUES(%s, %s, %s, %s);", (song_id, duration, title, year))
+            cursor.execute("INSERT INTO song VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                           (song_id, duration, title, year, key, loudness, mode, tempo, time_signature))
             # Insert artist if it doesn't exist in the db yet
             cursor.execute("SELECT * FROM artist WHERE AID = %s;", (artist_id,))
             if cursor.fetchone() is None:
-                cursor.execute("INSERT INTO artist VALUES(%s, %s);", (artist_id, artist_name))
+                cursor.execute("INSERT INTO artist VALUES(%s, %s, %s);", (artist_id, artist_mbid, artist_name))
             # Insert record if it doesn't exist in the db yet
             cursor.execute("SELECT * FROM record WHERE RID = %s;", (release_id, ))
             if cursor.fetchone() is None:
