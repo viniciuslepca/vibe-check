@@ -155,3 +155,10 @@ CREATE TABLE playlist_songs (
     FOREIGN KEY (PLID) REFERENCES playlist(PLID),
     FOREIGN KEY (SID) REFERENCES song(SID)
 );
+
+CREATE TABLE mb_artist (
+    mb_artist_id VARCHAR,
+    artist_name VARCHAR,
+    sort_name VARCHAR,
+
+)

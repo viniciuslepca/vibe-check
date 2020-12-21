@@ -10,3 +10,8 @@ with a similar "vibe".
 
 ## Running the SQL code
 - Injecting into Postgres: `psql -U postgres -d vibe-check -a -f ${PATH_TO_FILE}`
+
+## Data Collection Stages
+1. Downloaded dataset from [millionsongdataset.com](millionsongdataset.com) (~300MB)
+2. Ran our [SQL Table Generator](sql/create_tables.sql)
+3. Ran the [data collection script](data-collection/data_collection.py)
