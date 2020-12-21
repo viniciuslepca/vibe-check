@@ -8,9 +8,6 @@ DROP TABLE IF EXISTS artist_tags CASCADE;
 DROP TABLE IF EXISTS tag CASCADE;
 DROP TABLE IF EXISTS record_artist CASCADE;
 DROP TABLE IF EXISTS song_by CASCADE;
-DROP TABLE IF EXISTS user_account CASCADE;
-DROP TABLE IF EXISTS playlist CASCADE;
-DROP TABLE IF EXISTS playlist_songs CASCADE;
 DROP TABLE IF EXISTS mb_artist_data CASCADE;
 
 CREATE TABLE song (
@@ -92,30 +89,6 @@ CREATE TABLE song_by (
 	PRIMARY KEY (SID, AID),
 	FOREIGN KEY (SID) REFERENCES song(SID),
 	FOREIGN KEY (AID) REFERENCES artist(AID)
-);
-
-/* ADDED AFTER PHASE 1 */
-CREATE TABLE user_account (
-    UID SERIAL,
-    pwd_hash VARCHAR,
-    salt VARCHAR,
-    PRIMARY KEY (UID)
-);
-
-CREATE TABLE playlist (
-    PLID SERIAL,
-    playlist_name VARCHAR,
-    owner INTEGER,
-    PRIMARY KEY (PLID),
-    FOREIGN KEY (owner) REFERENCES user_account(UID)
-);
-
-CREATE TABLE playlist_songs (
-    PLID INTEGER,
-    SID VARCHAR,
-    PRIMARY KEY (PLID, SID),
-    FOREIGN KEY (PLID) REFERENCES playlist(PLID),
-    FOREIGN KEY (SID) REFERENCES song(SID)
 );
 
 CREATE TABLE mb_artist_data (
