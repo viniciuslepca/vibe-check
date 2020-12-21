@@ -73,6 +73,8 @@ def main():
                 conn.commit()
                 print(f'Committed {i} songs')
 
+    # For mb_ids that are empty, make them null
+    cursor.execute("UPDATE artist SET mb_id = NULL WHERE mb_id = '';")
 
     conn.commit()
     cursor.close()
