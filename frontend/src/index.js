@@ -5,18 +5,102 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
+import Card from 'react-bootstrap/Card';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isPlaylistPage: false,
+            playlist: [],
+            duration: 0
+        }
+    }
+
+    setIsPlaylistPage = (val, playlistData) => {
+        this.setState({isPlaylistPage: val}, () => {
+            if (this.state.isPlaylistPage) {
+                this.setState({playlist: playlistData.playlist, duration: playlistData.duration});
+            } else {
+                this.setState({playlist: [], duration: 0});
+            }
+        })
+    }
+
+    helpWindow = () => {
+        alert("To use this app, insert individual queries into the input box. To add more queries, click on 'Add Query'. "
+            + "You can also define the desired duration for your playlist! After you're done, click on 'Generate Playlist!'"
+        );
+    }
+
+    render() {
+        if (!this.state.isPlaylistPage) {
+            return (
+                <div>
+                    <Button onClick={this.helpWindow} style={{position: "absolute", right: 10, top: 10}}
+                            variant="outline-primary">Help!</Button>
+                    <PlaylistInputs setIsPlaylistPage={this.setIsPlaylistPage}/>
+                </div>
+            );
+        } else {
+            return (
+                <Playlist playlist={this.state.playlist} duration={this.state.duration}
+                          setIsPlaylistPage={this.setIsPlaylistPage}/>
+            )
+        }
+    }
+}
+
+class Playlist extends React.Component {
+    // Based on https://stackoverflow.com/questions/37096367/how-to-convert-seconds-to-minutes-and-hours-in-javascript
+    secondsToHms = (d) => {
+        d = Number(d);
+        const h = Math.floor(d / 3600);
+        const m = Math.floor(d % 3600 / 60);
+        const s = Math.floor(d % 3600 % 60);
+
+        const hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "";
+        const mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "";
+        const sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
+        return hDisplay + mDisplay + sDisplay;
+    }
+
     render() {
         return (
             <div>
-                <Button style={{position: "absolute", right: 10, top: 10}} variant="outline-primary">Help!</Button>
-                <PlaylistInputs/>
+                <Button style={{position: "absolute", right: 20, top: 20}}
+                        onClick={() => this.props.setIsPlaylistPage(false)}
+                        variant="primary">
+                    Return to playlist generation
+                </Button>
+                <div style={{margin: "100px 200px", width: "100%"}}>
+                    <span style={{
+                        fontSize: 30,
+                        backgroundColor: "white"
+                    }}>Duration: {this.secondsToHms(this.props.duration)}</span>
+                    {
+                        this.props.playlist.map((song, i) => {
+                            return (
+                                <Card key={i} style={{width: '30rem'}}>
+                                    <Card.Body>
+                                        <Card.Title>{song[0]}</Card.Title>
+                                        <Card.Subtitle className="mb-2 text-muted">{song[2]}</Card.Subtitle>
+                                        <Card.Text>
+                                            {
+                                                song[3] === null ? "" : song[3]
+                                            }
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            )
+                        })
+                    }
+                </div>
             </div>
-        );
+        )
     }
 }
 
@@ -60,6 +144,11 @@ class PlaylistInputs extends React.Component {
             body: JSON.stringify(params)
         }).then(response => response.json());
         console.log(response);
+        if (response && response.playlist && response.playlist.length > 0) {
+            this.props.setIsPlaylistPage(true, response)
+        } else {
+            alert("Something went wrong with this query!")
+        }
     }
 
     render() {
@@ -121,7 +210,7 @@ class TimeQuery extends React.Component {
     render() {
         const fontSize = 22;
         return (
-            <Form onChange={this.onChange} onSubmit={(event) => event.preventDefault()} >
+            <Form onChange={this.onChange} onSubmit={(event) => event.preventDefault()}>
                 <Form.Row>
                     <Col>
                         <Form.Group controlId={"hoursQuery"} style={{marginBottom: 0}}>
@@ -172,14 +261,14 @@ class InputQueries extends React.Component {
     }
 
     onBlur = (event) => {
-       const target = event.target;
-       if (target.tagName.toLowerCase() === "input") {
-           const value = target.value;
-           const index = target.id.split("query")[1]
-           const newInputQueries = this.props.inputQueries;
-           newInputQueries[index] = value;
-           this.props.setInputQueries(newInputQueries);
-       }
+        const target = event.target;
+        if (target.tagName.toLowerCase() === "input") {
+            const value = target.value;
+            const index = target.id.split("query")[1]
+            const newInputQueries = this.props.inputQueries;
+            newInputQueries[index] = value;
+            this.props.setInputQueries(newInputQueries);
+        }
     }
 
     render() {

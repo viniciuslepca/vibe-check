@@ -91,7 +91,11 @@ def generate_playlist():
             result = result[0]
         try:
             cursor.execute(result[0], result[1])
-            output_songs = cursor.fetchall()
+            out = set(cursor.fetchall())
+            if len(output_songs) == 0:
+                output_songs = list(out)
+            else:
+                output_songs = list(set(output_songs) & out)
             # print(output_songs)
         except Exception:
             conn.rollback()
@@ -109,7 +113,10 @@ def generate_playlist():
         if total_duration > duration:
             break
 
-    return jsonify(final_playlist)
+    return jsonify({
+        'playlist': final_playlist,
+        'duration': total_duration
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
