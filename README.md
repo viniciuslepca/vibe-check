@@ -17,3 +17,12 @@ with a similar "vibe".
 3. Ran the [data collection script](data-collection/data_collection.py) (1 million songs, used this for most metadata about them)
 4. Downloaded dataset from [musicbrainz](https://musicbrainz.org/doc/MusicBrainz_Database/Download) (~11GB)
 5. Ran the [musicbrainz data collection script](data-collection/musicbrainz_data.py) (populates data about artists and genres, about 38k artists)
+
+## How to execute
+1. Run `sql/create_tables.sql` using `psql -U postgres -d vibe-check -a -f ${PATH_TO_FILE}`
+2. From `/data-collection`, run `data_collection.py`
+3. From `/data-collection`, run `musicbraiz_data.py`
+4. Install requirements (on virtual environments): from root, run `pip install -r requirements.txt`
+5. From `/backend`, run `python3 app.py`
+6. With another terminal, from `/frontend` run `npm install` then `npm start`
+7. Access through `localhost:3000`
