@@ -1,6 +1,6 @@
 
 
--- depending on attibutes: same/similar, neg/pos, song/artist/year/decade, name of item
+-- depending on attibutes: same/similar, neg/pos, song/artist/year/decade/genre, name of item
 -- we run different sql procedures to get the songs we need
 
 -- this will be the same for all songs used in playlists
@@ -53,6 +53,26 @@ END //
 
 DELIMITER;
 
+-- Genre
+
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Same_Genre_Playlist (IN gen VARCHAR(30))
+BEGIN
+	IF EXISTS (SELECT * FROM Artist_genre WHERE genre_name = gen) THEN
+		SELECT Song.song_name, Artist.artist_name, Song.release_year
+		FROM Song, Song_By, Artist, Artist_genre
+		WHERE Song.sid = Song_By.sid AND
+			Song_By.arid = Artist.alid AND
+     		        Artist.aid = Artist_genre.aid AND
+                        Artist_genre.genre_name = gen;
+	ELSE
+		SELECT ‘ERROR: Invalid genre name’;
+	END IF;
+END //
+
+DELIMITER;
+
 -- Decade
 -- In Python, take decade name and output beginning of decade and end 
 -- for the sql comparison
@@ -65,7 +85,7 @@ BEGIN
 		SELECT Song.song_name, Artist.artist_name, Song.release_year
 		FROM Song, Song_By, Artist
 		WHERE Song.sid = Song_By.sid AND
-			Song_By.arid = Artist.alid AND
+			Song_By.aid = Artist.aid AND
      		        release_year <= en AND 
                         release_year >= beg;
 	ELSE
@@ -76,5 +96,121 @@ END //
 DELIMITER;
 
 
+
+
+
+
+
+
 -- Similar
+
+
+-- Song
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Sim_Song_Playlist (IN name VARCHAR(30))
+BEGIN
+	IF EXISTS (SELECT * FROM Song WHERE song_name = name) THEN
+                -- same artist
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By sb1, Song_By sb2, Artist
+		WHERE s1.sid = sb1.sid AND
+			sb1.aid = sb2.aid AND
+     		        s2.sid = sb2.sid AND
+			s1.song_name = name AND
+			sb2.aid = Artist.aid;
+		UNION
+
+                -- sim year
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By, Artist
+		WHERE s2.release_year >= s1.release_year - 2 AND
+			s2.release_year <= s1.release_year + 2 AND
+			Song_By.aid = Artist.aid AND
+			s1.song_name = name AND
+			Song_By.sid = s2.sid;
+		UNION
+
+                -- same genre
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By sb1, Song_By sb2, Artist a1, Artist a2, Artist_Genre ag1, Artist_Genre, ag2
+		WHERE s1.sid = sb1.sid AND
+			s2.sid = sb2.sid AND
+			sb1.aid = a1.aid AND
+			sb2.aid = a2.aid AND
+			a1.aid = ag1.aid AND
+			a2.aid = ag2.aid AND
+			s1.song_name = name AND
+			ag1.genre_name = ag2.genre_name;
+
+	ELSE
+		SELECT ‘ERROR: Invalid artist name’;
+	END IF;
+END //
+
+DELIMITER;
+
+
+
+-- Year
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Sim_Song_Playlist (IN year VARCHAR(30))
+BEGIN
+	IF EXISTS (SELECT * FROM Song WHERE release_year = year) THEN
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By, Artist
+		WHERE s2.release_year >= s1.release_year - 3 AND
+			s2.release_year <= s1.release_year + 3 AND
+			Song_By.aid = Artist.aid AND
+			s1.song_name = name AND
+			Song_By.sid = s2.sid;
+
+	ELSE
+		SELECT ‘ERROR: Invalid artist name’;
+	END IF;
+END //
+
+DELIMITER;
+
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE Sim_Artist_Playlist (IN name VARCHAR(30))
+BEGIN
+	IF EXISTS (SELECT * FROM Song WHERE song_name = name) THEN
+                -- same artist
+		SELECT Song.song_name, Artist.artist_name, Song.release_year
+		FROM Song, Song_By, Artist
+		WHERE Song.sid = Song_By.sid AND
+			Artist.artist_name = name AND
+			Song_By.aid = Artist.aid;
+		UNION
+
+                -- sim year
+		SELECT s2.song_name, Artist.artist_name, s2.release_year
+		FROM Song s1, Song s2, Song_By, Artist
+		WHERE s1.sid = Song_By.sid AND
+			Song_By.aid = Artist.aid AND
+			Artist.artist_name = name AND
+			s2.release_year >= (SELECT MIN(release_year) FROM s1) AND
+			s2.release_year <= (SELECT MAX(release_year) FROM s1);
+		UNION
+
+		-- same genre
+		SELECT Song.song_name, A2.artist_name, Song.release_year
+		FROM Song, Song_By, Artist a1, Artist a2, Artist_Genre ag1, Artist_Genre ag2
+		WHERE a1.aid = ag1.aid AND
+			a1.artist_name = name AND
+			Song.sid = Song_By.sid AND
+			Song_By.aid = a2.aid AND
+			a2.aid = ag2.aid AND
+			a2.genre_name = a1.genre_name 
+
+	ELSE
+		SELECT ‘ERROR: Invalid artist name’;
+	END IF;
+END //
+
+DELIMITER;
+
 
