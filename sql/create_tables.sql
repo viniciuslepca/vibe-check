@@ -1,112 +1,157 @@
-DROP TABLE IF EXISTS IF EXISTS song;
+DROP TABLE IF EXISTS song CASCADE;
+DROP TABLE IF EXISTS person CASCADE;
+DROP TABLE IF EXISTS band CASCADE;
+DROP TABLE IF EXISTS has_members CASCADE;
+DROP TABLE IF EXISTS artist CASCADE;
+DROP TABLE IF EXISTS genre CASCADE;
+DROP TABLE IF EXISTS record CASCADE;
+DROP TABLE IF EXISTS similar_to CASCADE;
+DROP TABLE IF EXISTS record_songs CASCADE;
+DROP TABLE IF EXISTS song_genre CASCADE;
+DROP TABLE IF EXISTS record_artist CASCADE;
+DROP TABLE IF EXISTS song_tags CASCADE;
+DROP TABLE IF EXISTS song_by CASCADE;
+DROP TABLE IF EXISTS song_feature CASCADE;
+DROP TABLE IF EXISTS user_account CASCADE;
+DROP TABLE IF EXISTS playlist CASCADE;
+DROP TABLE IF EXISTS playlist_songs CASCADE;
+
 CREATE TABLE song (
-	SID SERIAL,
+	SID VARCHAR,
 	length INTEGER,
-    song_name VARCHAR(128),
+    song_name VARCHAR,
     release_year INTEGER,
-    lyrics VARCHAR(16384),
-    youtube_link VARCHAR(1024),
-    spotify_link VARCHAR(1024),
-    apple_link VARCHAR(1024),
+    lyrics VARCHAR,
+    youtube_link VARCHAR,
+    spotify_link VARCHAR,
+    apple_link VARCHAR,
     PRIMARY KEY (SID)
 );
 
-DROP TABLE IF EXISTS person;
-CREATE TABLE person (
-	PID SERIAL,
-	person_name VARCHAR(128),
-	gender VARCHAR(1),
-	birth_date DATETIME,
-	country VARCHAR(128),
-	AID INTEGER,
-	PRIMARY KEY (PID)
-);
-
-DROP TABLE IF EXISTS band;
-CREATE TABLE band (
-    BID SERIAL,
-	formation_year INTEGER,
-	AID INTEGER,
-	PRIMARY KEY (BID)
-);
-
-DROP TABLE IF EXISTS has_members;
-CREATE TABLE has_members (
-	PID INTEGER,
-	BID INTEGER,
-	PRIMARY KEY (PID, BID)
-);
-
-DROP TABLE IF EXISTS artist;
 CREATE TABLE artist (
-    AID SERIAL,
-	artist_name VARCHAR(128),
-    artist_picture_link VARCHAR(1024)
+    AID VARCHAR,
+	artist_name VARCHAR,
+    artist_picture_link VARCHAR,
     PRIMARY KEY (AID)
 );
 
-DROP TABLE IF EXISTS genre;
+CREATE TABLE person (
+	PID SERIAL,
+	person_name VARCHAR,
+	gender VARCHAR(1),
+	birth_date DATE,
+	country VARCHAR,
+	AID VARCHAR,
+	PRIMARY KEY (PID),
+	FOREIGN KEY (AID) REFERENCES artist(AID)
+);
+
+CREATE TABLE band (
+    BID SERIAL,
+	formation_year INTEGER,
+	AID VARCHAR,
+	PRIMARY KEY (BID),
+	FOREIGN KEY (AID) REFERENCES artist(AID)
+);
+
+CREATE TABLE has_members (
+	PID INTEGER,
+	BID INTEGER,
+	PRIMARY KEY (PID, BID),
+	FOREIGN KEY (PID) REFERENCES person(PID),
+	FOREIGN KEY (BID) REFERENCES band(BID)
+);
+
 CREATE TABLE genre (
-	genre_name VARCHAR(128),
+	genre_name VARCHAR,
 	PRIMARY KEY (genre_name)
 );
 
-DROP TABLE IF EXISTS record;
 CREATE TABLE record (
-	RID SERIAL,
-	record_cover_link VARCHAR(1024),
-	is_single BOOLEAN,
-	record_name VARCHAR(128),
+	RID INTEGER,
+	record_name VARCHAR,
 	release_year INTEGER,
+	record_cover_link VARCHAR,
+	is_single BOOLEAN,
 	PRIMARY KEY (RID)
 );
 
-DROP TABLE IF EXISTS similar_to;
 CREATE TABLE similar_to (
-	SID_1 INTEGER,
-	SID_2 INTEGER,
+	SID_1 VARCHAR,
+	SID_2 VARCHAR,
 	similarity_score INTEGER,
-	PRIMARY KEY (SID_1, SID_2)
+	PRIMARY KEY (SID_1, SID_2),
+	FOREIGN KEY (SID_1) REFERENCES song(SID),
+	FOREIGN KEY (SID_2) REFERENCES song(SID)
 );
 
-DROP TABLE IF EXISTS record_songs;
 CREATE TABLE record_songs (
-	SID INTEGER,
+	SID VARCHAR,
 	RID INTEGER,
-	PRIMARY KEY (SID, RID)
+	PRIMARY KEY (SID, RID),
+	FOREIGN KEY (SID) REFERENCES song(SID),
+	FOREIGN KEY (RID) REFERENCES record(RID)
 );
 
-DROP TABLE IF EXISTS song_genre;
 CREATE TABLE song_genre (
-	SID INTEGER,
-	genre_name VARCHAR(128),
-	PRIMARY KEY (SID, genre_name)
+	SID VARCHAR,
+	genre_name VARCHAR,
+	PRIMARY KEY (SID, genre_name),
+	FOREIGN KEY (SID) REFERENCES song(SID),
+	FOREIGN KEY (genre_name) REFERENCES genre(genre_name)
 );
 
-DROP TABLE IF EXISTS record_artist;
 CREATE TABLE record_artist (
 	RID INTEGER,
-	AID INTEGER,
-	PRIMARY KEY (RID, AID)
+	AID VARCHAR,
+	PRIMARY KEY (RID, AID),
+	FOREIGN KEY (RID) REFERENCES record(RID),
+	FOREIGN KEY (AID) REFERENCES artist(AID)
 );
 
-DROP TABLE IF EXISTS song_tags;
 CREATE TABLE song_tags (
-	SID INTEGER,
-	tag_name VARCHAR(256),
-	PRIMARY KEY (SID, tag_name)
+	SID VARCHAR,
+	tag_name VARCHAR,
+	PRIMARY KEY (SID, tag_name),
+	FOREIGN KEY (SID) REFERENCES song(SID)
 );
 
-DROP TABLE IF EXISTS song_by;
 CREATE TABLE song_by (
-	SID INTEGER,
-	AID INTEGER,
-	PRIMARY KEY (SID, AID)
+	SID VARCHAR,
+	AID VARCHAR,
+	PRIMARY KEY (SID, AID),
+	FOREIGN KEY (SID) REFERENCES song(SID),
+	FOREIGN KEY (AID) REFERENCES artist(AID)
 );
 
-DROP TABLE IF EXISTS song_feature;
 CREATE TABLE song_feature (
-	SID INTEGER,
-	AID INTEGER,
-	PRIMARY KEY (SID, AID)
+	SID VARCHAR,
+	AID VARCHAR,
+	PRIMARY KEY (SID, AID),
+	FOREIGN KEY (SID) REFERENCES song(SID),
+	FOREIGN KEY (AID) REFERENCES artist(AID)
+);
+
+/* ADDED AFTER PHASE 1 */
+CREATE TABLE user_account (
+    UID SERIAL,
+    pwd_hash VARCHAR,
+    salt VARCHAR,
+    PRIMARY KEY (UID)
+);
+
+CREATE TABLE playlist (
+    PLID SERIAL,
+    playlist_name VARCHAR,
+    owner INTEGER,
+    PRIMARY KEY (PLID),
+    FOREIGN KEY (owner) REFERENCES user_account(UID)
+);
+
+CREATE TABLE playlist_songs (
+    PLID INTEGER,
+    SID VARCHAR,
+    PRIMARY KEY (PLID, SID),
+    FOREIGN KEY (PLID) REFERENCES playlist(PLID),
+    FOREIGN KEY (SID) REFERENCES song(SID)
 );

@@ -1,0 +1,61 @@
+Metadata fields
+
+analyzer_version : b''
+artist_7digitalid : 82272
+artist_familiarity : 0.6554421014156944
+artist_hotttnesss : 0.43211794505542545
+artist_id : b'ARI29P31187B9A66B2'
+artist_latitude : 39.73926
+artist_location : b'Illinois'
+artist_longitude : -89.50409
+artist_mbid : b'2d106e1b-7718-4f52-ad02-48a0f571bc35'
+artist_name : b'Stonebridge'
+artist_playmeid : -1
+genre : b''
+idx_artist_terms : 0
+idx_similar_artists : 0
+release : b'SOS'
+release_7digitalid : 105101
+song_hotttnesss : nan
+song_id : b'SOWRXHO12A8C139DB8'
+title : b'SOS'
+track_7digitalid : 1086304
+----------------------------------------------------------------------------------------------------
+Analysis fields
+
+analysis_sample_rate : 22050
+audio_md5 : b'ce2965f3e8de56494a6893aa1721c5ce'
+danceability : 0.0
+duration : 444.13342
+end_of_fade_in : 0.096
+energy : 0.0
+idx_bars_confidence : 0
+idx_bars_start : 0
+idx_beats_confidence : 0
+idx_beats_start : 0
+idx_sections_confidence : 0
+idx_sections_start : 0
+idx_segments_confidence : 0
+idx_segments_loudness_max : 0
+idx_segments_loudness_max_time : 0
+idx_segments_loudness_start : 0
+idx_segments_pitches : 0
+idx_segments_start : 0
+idx_segments_timbre : 0
+idx_tatums_confidence : 0
+idx_tatums_start : 0
+key : 2
+key_confidence : 0.477
+loudness : -4.173
+mode : 1
+mode_confidence : 0.437
+start_of_fade_out : 433.627
+tempo : 127.983
+time_signature : 4
+time_signature_confidence : 0.446
+track_id : b'TRMBXSO128F428BCF2'
+----------------------------------------------------------------------------------------------------
+Musicbrainz fields
+
+idx_artist_mbtags : 0
+year : 2007
